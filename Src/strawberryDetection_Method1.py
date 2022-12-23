@@ -11,15 +11,15 @@ def run():
     num_images = 5
     images = import_images(num_images)
     instances = import_instances(num_images)
-    boxes = import_boxes(num_images)
+    boxes_to_json()
+    boxes = import_boxes_json(num_images)
     ripeness = import_ripeness(num_images)
-    
+
     for i in range(0,num_images):
         cv2.imshow("image", images[i])
-        cv2.imshow("instance", instances[i])
-        cv2.imshow("ripeness", ripeness[i])
-        print(boxes)
-        print("\n")
+        cv2.imshow("boxes", draw_boxes(images[i], boxes[i]))
+        #cv2.imshow("instance", instances[i])
+        #cv2.imshow("ripeness", ripeness[i])
         cv2.waitKey(0)
         cv2.destroyAllWindows()
     
