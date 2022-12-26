@@ -1,23 +1,27 @@
 import cv2
 import os
 import numpy as np
-from dataProcessing import *
-
+import keras
+import tensorflow as tf
+#from Src.strawberry import *
+import strawberry
+#from strawberry import strawberry
 def run():
-
+    strw = strawberry.StawberryDataset()
+    # strw.boxes_to_json()
     cv2.destroyAllWindows()
     fileDir = os.path.dirname(__file__)
 
     num_images = 5
-    images = import_images(num_images)
-    instances = import_instances(num_images)
-    boxes_to_json()
-    boxes = import_boxes_json(num_images)
-    ripeness = import_ripeness(num_images)
+    images = strw.import_images(num_images)
+    instances = strw.import_instances(num_images)
+    strw.boxes_to_json()
+    boxes = strw.import_boxes_json(num_images)
+    ripeness = strw.import_ripeness(num_images)
 
     for i in range(0,num_images):
         cv2.imshow("image", images[i])
-        cv2.imshow("boxes", draw_boxes(images[i], boxes[i]))
+        cv2.imshow("boxes", strw.draw_boxes(images[i], boxes[i]))
         #cv2.imshow("instance", instances[i])
         #cv2.imshow("ripeness", ripeness[i])
         cv2.waitKey(0)
