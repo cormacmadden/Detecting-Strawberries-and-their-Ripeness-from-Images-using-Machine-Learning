@@ -3,11 +3,11 @@ import cv2
 import numpy as np
 import json
 import re
+fileDir = os.path.dirname(__file__)
 
 class StawberryDataset():
     
     def import_images(self,amt = 0):
-        fileDir = os.path.dirname(__file__)
         imagesPath = os.path.join(fileDir, '../Data/Images')
         imageFiles = [ f for f in os.listdir(imagesPath) if os.path.isfile(os.path.join(imagesPath,f)) ]
         imageFiles.sort(key=lambda f: int(re.sub('\D', '', f)))
@@ -19,7 +19,6 @@ class StawberryDataset():
         return images
 
     def import_instances(self,amt = 0):
-        fileDir = os.path.dirname(__file__)
         ins_segPath = os.path.join(fileDir, '../Data/instance_segmentation')
         ins_segFiles = [ f for f in os.listdir(ins_segPath) if os.path.isfile(os.path.join(ins_segPath,f)) ]
         ins_segFiles.sort(key=lambda f: int(re.sub('\D', '', f)))
@@ -31,7 +30,6 @@ class StawberryDataset():
         return instances
 
     def import_ripeness(self,amt = 0):
-        fileDir = os.path.dirname(__file__)
         ripe_segPath = os.path.join(fileDir, '../Data/instance+ripeness_segmentation')
         ripe_segFiles = [ f for f in os.listdir(ripe_segPath) if os.path.isfile(os.path.join(ripe_segPath,f))]
         ripe_segFiles.sort(key=lambda f: int(re.sub('\D', '', f)))
@@ -43,7 +41,6 @@ class StawberryDataset():
         return ripeness
 
     def import_boxes_txt(self,amt = 0):
-        fileDir = os.path.dirname(__file__)
         boudingBoxPath = os.path.join(fileDir, '../Data/bounding_box/txt/')
         boudingBoxFiles = [ f for f in os.listdir(boudingBoxPath) if os.path.isfile(os.path.join(boudingBoxPath,f)) ]
         boudingBoxFiles.sort(key=lambda f: int(re.sub('\D', '', f)))
@@ -58,7 +55,6 @@ class StawberryDataset():
         return boudingBoxes
 
     def import_boxes_json(self,amt = 0):
-        fileDir = os.path.dirname(__file__)
         boudingBoxPath = os.path.join(fileDir, '../Data/bounding_box/JSON')
         boudingBoxFiles = [ f for f in os.listdir(boudingBoxPath) if os.path.isfile(os.path.join(boudingBoxPath,f)) ]
         boudingBoxFiles.sort(key=lambda f: int(re.sub('\D', '', f)))
@@ -71,7 +67,6 @@ class StawberryDataset():
         return boudingBoxes
 
     def boxes_to_json(self):
-        fileDir = os.path.dirname(__file__)
         boudingBoxPath = os.path.join(fileDir, '../Data/bounding_box')
         boudingBoxFiles = [ f for f in os.listdir(boudingBoxPath) if os.path.isfile(os.path.join(boudingBoxPath,f)) ]
         boudingBoxFiles.sort(key=lambda f: int(re.sub('\D', '', f)))
@@ -113,4 +108,4 @@ class StawberryDataset():
             cv2.rectangle(image,(pt1x,pt1y),(pt2x,pt2y),color,2)
         return image
 
-    def load_mask(self):
+    #def load_mask(self):
