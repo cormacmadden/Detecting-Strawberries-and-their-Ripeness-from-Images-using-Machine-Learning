@@ -1,5 +1,6 @@
 /Data/Images/
 /Data/bounding_box/
 /Mask_RCNN/
+/vision/
 *.pth
 *.torch
