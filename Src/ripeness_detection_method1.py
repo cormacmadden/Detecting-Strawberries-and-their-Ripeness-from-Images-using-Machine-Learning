@@ -4,7 +4,6 @@ import numpy as np
 import keras
 import tensorflow as tf
 #from Src.strawberry import *
-import strawberry
 #from strawberry import strawberry
 def run():
     strw = strawberry.StawberryDataset()
@@ -27,7 +26,6 @@ def run():
         cv2.waitKey(0)
         cv2.destroyAllWindows()
     
-
     edges = cv2.Canny(images[4],20,500)
     cv2.imshow("edges",edges)
 

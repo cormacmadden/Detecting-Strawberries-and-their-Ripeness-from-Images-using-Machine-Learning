@@ -1,6 +1,7 @@
 import random
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
+from torch.utils.data import DataLoader
 from engine import train_one_epoch, evaluate
 import transforms as T
 import numpy as np
@@ -8,17 +9,18 @@ import torch.utils.data
 import utils
 import cv2
 import torchvision.models.segmentation
+
 import torch
 import torchvision.models as models
 torch.cuda.empty_cache()
 import os
-import strawberry
+
 import re
 from PIL import Image
 batchSize=1
 imageSize=[600,600]
 
-class PennFudanDataset(torch.utils.data.Dataset):
+class StrawberryDataset(torch.utils.data.Dataset):
     def __init__(self, root, transforms):
         self.root = root
         self.transforms = transforms
@@ -123,20 +125,15 @@ def get_model_instance_segmentation(num_classes):
 
 def main():
 
-
-
-
     fileDir = os.path.dirname(__file__)
-
-
     # train on the GPU or on the CPU, if a GPU is not available
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
     # our dataset has two classes only - background and person
     num_classes = 2
     # use our dataset and defined transformations
-    dataset = PennFudanDataset(fileDir, get_transform(train=True))
-    dataset_test = PennFudanDataset(fileDir, get_transform(train=False))
+    dataset = StrawberryDataset(fileDir, get_transform(train=True))
+    dataset_test = StrawberryDataset(fileDir, get_transform(train=False))
 
     # split the dataset in train and test set
     indices = torch.randperm(len(dataset)).tolist()
@@ -144,13 +141,9 @@ def main():
     dataset_test = torch.utils.data.Subset(dataset_test, indices[-50:])
 
     # define training and validation data loaders
-    data_loader = torch.utils.data.DataLoader(
-        dataset, batch_size=2, shuffle=True, num_workers=4,
-        collate_fn=utils.collate_fn)
+    data_loader = DataLoader(dataset, batch_size=2, shuffle=True, num_workers=4, collate_fn=utils.collate_fn)
 
-    data_loader_test = torch.utils.data.DataLoader(
-        dataset_test, batch_size=1, shuffle=False, num_workers=4,
-        collate_fn=utils.collate_fn)
+    data_loader_test = DataLoader(dataset_test, batch_size=1, shuffle=False, num_workers=4, collate_fn=utils.collate_fn)
 
     # get the model using our helper function
     model = get_model_instance_segmentation(num_classes)
@@ -180,8 +173,7 @@ def main():
 
     print("That's it!")
 
-
-        # pick one image from the test set
+    # pick one image from the test set
     img, _ = dataset_test[0]
     # put the model in evaluation mode
     model.eval()
@@ -191,7 +183,7 @@ def main():
     Image.fromarray(img.mul(255).permute(1, 2, 0).byte().numpy()).show()
     Image.fromarray(prediction[0]['masks'][0, 0].mul(255).byte().cpu().numpy()).show()
     
-    torch.save(model.state_dict(), 'model_weights.pth')
+    #torch.save(model.state_dict(), 'model_weights.pth')
     torch.save(model, 'model.pth')
 
 if __name__ == '__main__':
