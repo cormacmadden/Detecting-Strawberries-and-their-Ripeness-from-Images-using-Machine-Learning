@@ -2,6 +2,6 @@
 /Data/bounding_box/
 /Mask_RCNN/
 /vision/
+/60LOC/
 *.pth
 *.torch
-/60LOC/
