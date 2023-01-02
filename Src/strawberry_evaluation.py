@@ -9,6 +9,7 @@ import torchvision
 import numpy as np
 import utils
 from torchvision.utils import draw_segmentation_masks
+from torchvision.utils import draw_bounding_boxes
 import torchvision.transforms.functional as F
 from torch.utils.data import DataLoader
 from torchvision.utils import make_grid
@@ -37,8 +38,9 @@ def main():
             prediction = model([imagesqueezed.to(device)])[0]
         num_obj = len(prediction["boxes"])
 
-        proba_threshold = 0.9
+        proba_threshold = 0.95
         masks = prediction['masks'] > proba_threshold
+        boxes = prediction['masks'] > proba_threshold
         num_strawberries = len(masks)
         print(num_strawberries)
         masks = masks.squeeze(1)
@@ -50,7 +52,8 @@ def main():
         #show(grid)
         #imshow(imagesqueezed)
         image2 = torch.as_tensor(image[0]*255, dtype=torch.uint8)
-        show(draw_segmentation_masks(image2, masks, alpha=0.7))
+        show(draw_segmentation_masks(image2, masks, alpha=0.5))
+        #show(draw_bounding_boxes(image2, boxes))
     return
 
 def get_transform(train):
