@@ -161,7 +161,7 @@ def main():
                                                    gamma=0.1)
 
     # let's train it for 10 epochs
-    num_epochs = 2
+    num_epochs = 7
 
     for epoch in range(num_epochs):
         # train for one epoch, printing every 10 iterations
@@ -184,7 +184,7 @@ def main():
     Image.fromarray(prediction[0]['masks'][0, 0].mul(255).byte().cpu().numpy()).show()
     
     #torch.save(model.state_dict(), 'model_weights.pth')
-    torch.save(model, 'model.pth')
+    torch.save(model, 'model2.pth')
 
 if __name__ == '__main__':
     main()
