@@ -39,21 +39,15 @@ def main():
         num_obj = len(prediction["boxes"])
 
         proba_threshold = 0.95
-        masks = prediction['masks'] > proba_threshold
-        boxes = prediction['masks'] > proba_threshold
-        num_strawberries = len(masks)
+        #masks = prediction['masks'] > proba_threshold
+        boxes = prediction['boxes'][prediction["scores"] > proba_threshold]
+        num_strawberries = len(boxes)
         print(num_strawberries)
-        masks = masks.squeeze(1)
-        #boolean_masks = [
-        #    out['masks'][out['scores'] > score_threshold] > proba_threshold
-        #    for out in output
-        #]
-        #grid = make_grid(images)
-        #show(grid)
-        #imshow(imagesqueezed)
+        #boxes = boxes.squeeze(1)
+
         image2 = torch.as_tensor(image[0]*255, dtype=torch.uint8)
-        show(draw_segmentation_masks(image2, masks, alpha=0.5))
-        #show(draw_bounding_boxes(image2, boxes))
+        #show(draw_segmentation_masks(image2, masks, alpha=0.5))
+        show(draw_bounding_boxes(image2, boxes))
     return
 
 def get_transform(train):

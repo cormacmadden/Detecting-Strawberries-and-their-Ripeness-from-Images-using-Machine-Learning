@@ -17,7 +17,7 @@ import os
 
 import re
 from PIL import Image
-batchSize=1
+batchSize=2
 imageSize=[600,600]
 
 class StrawberryDataset(torch.utils.data.Dataset):
@@ -47,8 +47,23 @@ class StrawberryDataset(torch.utils.data.Dataset):
         # note that we haven't converted the mask to RGB,
         # because each color corresponds to a different instance
         # with 0 being background
-        mask = Image.open(os.path.join(self.root, '../Data/instance_segmentation/',self.masks[idx]))
+        mask = Image.open(os.path.join(self.root, '../Data/instance_segmentation/',self.masks[idx]))#.convert("RGB")
         # convert the PIL Image into a numpy array
+        #r = ripe
+        #g = unripe
+        #b = partially ripe
+        #r,g,b = mask.split()
+        '''        
+        r = np.array(r)
+        r = np.sort(r)
+        r = np.unique(r)
+        g = np.array(g)
+        g = np.sort(g)
+        g = np.unique(g)
+        b = np.array(b)
+        b = np.sort(b)
+        b = np.unique(b)
+        '''
         mask = np.array(mask)
         # first id is the background, so remove it
         obj_ids = np.unique(mask)
@@ -91,10 +106,6 @@ class StrawberryDataset(torch.utils.data.Dataset):
         data["iscrowd"] = iscrowd
         if self.transforms is not None:
             img, data = self.transforms(img, data)
-            #batch_Imgs.append(img)
-            #batch_Data.append(data)  # load images and masks
-        #batch_Imgs = torch.stack([torch.as_tensor(d) for d in batch_Imgs], 0)
-        #batch_Imgs = batch_Imgs.swapaxes(1, 3).swapaxes(2, 3)
         return img, data
 
 def get_transform(train):
@@ -143,7 +154,7 @@ def main():
     # define training and validation data loaders
     data_loader = DataLoader(dataset, batch_size=2, shuffle=True, num_workers=4, collate_fn=utils.collate_fn)
 
-    data_loader_test = DataLoader(dataset_test, batch_size=1, shuffle=False, num_workers=4, collate_fn=utils.collate_fn)
+    data_loader_test = DataLoader(dataset_test, batch_size=2, shuffle=False, num_workers=4, collate_fn=utils.collate_fn)
 
     # get the model using our helper function
     model = get_model_instance_segmentation(num_classes)
