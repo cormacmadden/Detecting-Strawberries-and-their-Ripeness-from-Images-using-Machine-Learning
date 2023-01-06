@@ -16,7 +16,7 @@ torch.cuda.empty_cache()
 import os
 
 import re
-from PIL import Image
+from PIL import Image , ImageOps
 batchSize=2
 imageSize=[600,600]
 
@@ -24,17 +24,17 @@ class StrawberryDataset(torch.utils.data.Dataset):
     def __init__(self, root, transforms):
         self.root = root
         self.transforms = transforms
-        # load all image files, sorting them to
-        # ensure that they are aligned
+
         trainDir= os.path.join(root, '../Data/Images')
         images = [ f for f in os.listdir(trainDir) if os.path.isfile(os.path.join(trainDir,f)) ]
         images.sort(key=lambda f: int(re.sub('\D', '', f)))
         self.imgs = images
 
-        maskDir = os.path.join(root, '../Data/instance_segmentation')
+        maskDir = os.path.join(root, '../Data/instance+ripeness_segmentation')
         maskDirs = [ f for f in os.listdir(maskDir) if os.path.isfile(os.path.join(maskDir,f)) ]
         maskDirs.sort(key=lambda f: int(re.sub('\D', '', f)))
         self.masks = maskDirs
+
     def __len__(self):
         return len(self.imgs)
 
@@ -48,12 +48,13 @@ class StrawberryDataset(torch.utils.data.Dataset):
         # because each color corresponds to a different instance
         # with 0 being background
         mask = Image.open(os.path.join(self.root, '../Data/instance_segmentation/',self.masks[idx]))#.convert("RGB")
+        ripe_mask = Image.open(os.path.join(self.root, '../Data/instance+ripeness_segmentation/',self.masks[idx])).convert("RGB")
         # convert the PIL Image into a numpy array
         #r = ripe
         #g = unripe
         #b = partially ripe
-        #r,g,b = mask.split()
-        '''        
+        
+        r,g,b = ripe_mask.split()
         r = np.array(r)
         r = np.sort(r)
         r = np.unique(r)
@@ -63,18 +64,27 @@ class StrawberryDataset(torch.utils.data.Dataset):
         b = np.array(b)
         b = np.sort(b)
         b = np.unique(b)
-        '''
+        r = r[1:]
+        g = g[1:]
+        b = b[1:]
+        #mask = ImageOps.grayscale(mask)
         mask = np.array(mask)
         # first id is the background, so remove it
         obj_ids = np.unique(mask)
         # first id is the background, so remove it
         obj_ids = obj_ids[1:]
-        # split the color-encoded mask into a set
-        # of binary masks
+        # split the color-encoded mask into a set# of binary masks
         masks = mask == obj_ids[:, None, None]
         num_objs = len(obj_ids)
         boxes = []
+        ripeness = np.empty(num_objs+1, dtype=int)
+        #ripeness [num_objs]
+                
+        ripeness[r] = 1
+        ripeness[g] = 2
+        ripeness[b] = 3
         
+        ripeness = ripeness[1:]
         for i in range(num_objs):
             pos = np.where(masks[i])
             xmin = np.min(pos[1])
@@ -85,6 +95,7 @@ class StrawberryDataset(torch.utils.data.Dataset):
         # convert everything into a torch.Tensor
         boxes = torch.as_tensor(boxes, dtype=torch.float32)
         masks = torch.as_tensor(masks, dtype=torch.uint8)
+        ripeness = torch.as_tensor(ripeness, dtype=torch.int64)
         iscrowd = torch.zeros((num_objs,), dtype=torch.int64)
         image_id = torch.tensor([idx])
         area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
@@ -99,7 +110,7 @@ class StrawberryDataset(torch.utils.data.Dataset):
         #img = torch.as_tensor(img, dtype=torch.float32)
         data = {}
         data["boxes"] =  boxes
-        data["labels"] =  torch.ones((num_objs,), dtype=torch.int64)   # there is only one class
+        data["labels"] =  ripeness   # there is only one class
         data["masks"] = masks
         data["image_id"] = image_id
         data["area"] = area
@@ -137,13 +148,14 @@ def get_model_instance_segmentation(num_classes):
 def main():
 
     fileDir = os.path.dirname(__file__)
+    trainDir = os.path.dirname(__file__)
     # train on the GPU or on the CPU, if a GPU is not available
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
     # our dataset has two classes only - background and person
-    num_classes = 2
+    num_classes = 4
     # use our dataset and defined transformations
-    dataset = StrawberryDataset(fileDir, get_transform(train=True))
+    dataset = StrawberryDataset(trainDir, get_transform(train=True))
     dataset_test = StrawberryDataset(fileDir, get_transform(train=False))
 
     # split the dataset in train and test set
@@ -172,11 +184,11 @@ def main():
                                                    gamma=0.1)
 
     # let's train it for 10 epochs
-    num_epochs = 7
+    num_epochs = 6
 
     for epoch in range(num_epochs):
         # train for one epoch, printing every 10 iterations
-        train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq=10)
+        train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq=3)
         # update the learning rate
         lr_scheduler.step()
         # evaluate on the test dataset
@@ -195,7 +207,7 @@ def main():
     Image.fromarray(prediction[0]['masks'][0, 0].mul(255).byte().cpu().numpy()).show()
     
     #torch.save(model.state_dict(), 'model_weights.pth')
-    torch.save(model, 'model2.pth')
+    torch.save(model, 'model ripeness.pth')
 
 if __name__ == '__main__':
     main()

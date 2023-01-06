@@ -5,3 +5,5 @@
 /60LOC/
 *.pth
 *.torch
+/Data/
+*.ypc

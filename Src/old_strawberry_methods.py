@@ -3,19 +3,20 @@ import cv2
 import numpy as np
 import json
 import re
+from PIL import Image , ImageOps
 fileDir = os.path.dirname(__file__)
 
-class StawberryDataset():
+class OldStawberryDataset():
     
-    def import_images(self,amt = 0):
-        imagesPath = os.path.join(fileDir, '../Data/Images')
+    def import_images(self,imagesPath, amt = 0):
         imageFiles = [ f for f in os.listdir(imagesPath) if os.path.isfile(os.path.join(imagesPath,f)) ]
         imageFiles.sort(key=lambda f: int(re.sub('\D', '', f)))
         if amt == 0: 
             amt = len(imageFiles)
         images = np.empty(amt, dtype=object)
         for n in range(0, amt): 
-            images[n] = cv2.imread(os.path.join(imagesPath,imageFiles[n]),cv2.IMREAD_UNCHANGED )
+            #images[n] = cv2.imread(os.path.join(imagesPath,imageFiles[n]),cv2.IMREAD_UNCHANGED )
+            images[n] = Image.open(os.path.join(imagesPath,imageFiles[n])).convert("RGB")
         return images
 
     def import_instances(self,amt = 0):
