@@ -9,6 +9,7 @@ import torch.utils.data
 import utils
 import cv2
 import torchvision.models.segmentation
+import matplotlib.pyplot as plt
 
 import torch
 import torchvision.models as models
@@ -20,6 +21,16 @@ from PIL import Image , ImageOps
 batchSize=2
 imageSize=[600,600]
 
+y_loss = {}  # loss history
+y_loss = []
+
+y_err = {}
+y_err = []
+
+x_epoch = []
+fig = plt.figure()
+ax0 = fig.add_subplot(121, title="loss")
+ax1 = fig.add_subplot(122, title="top1err")
 class StrawberryDataset(torch.utils.data.Dataset):
     def __init__(self, root, transforms):
         self.root = root
@@ -145,6 +156,17 @@ def get_model_instance_segmentation(num_classes):
                                                        num_classes)
     return model
 
+def draw_curve(current_epoch):
+    x_epoch.append(current_epoch)
+    ax0.plot(x_epoch, y_loss['train'], 'bo-', label='train')
+    ax0.plot(x_epoch, y_loss['val'], 'ro-', label='val')
+    ax1.plot(x_epoch, y_err['train'], 'bo-', label='train')
+    ax1.plot(x_epoch, y_err['val'], 'ro-', label='val')
+    if current_epoch == 0:
+        ax0.legend()
+        ax1.legend()
+    fig.savefig(os.path.join('./lossGraphs', 'train.jpg'))
+
 def main():
 
     fileDir = os.path.dirname(__file__)
@@ -187,12 +209,16 @@ def main():
     num_epochs = 6
 
     for epoch in range(num_epochs):
-        # train for one epoch, printing every 10 iterations
-        train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq=3)
+        running_loss = 0.0
+        running_corrects = 0.0  
+        # train for one epoch, printing every 5 iterations
+        metric_logger = train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq=3)
         # update the learning rate
         lr_scheduler.step()
         # evaluate on the test dataset
-        evaluate(model, data_loader_test, device=device)
+        cocoEval = evaluate(model, data_loader_test, device=device)
+        y_loss.append(metric_logger.meters['loss'].avg)
+        y_err.append(1.0 - epoch_acc)
 
     print("That's it!")
 

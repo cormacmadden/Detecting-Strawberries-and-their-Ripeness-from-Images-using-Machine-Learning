@@ -3,8 +3,8 @@ import os
 import numpy as np
 import keras
 import tensorflow as tf
-#from Src.strawberry import *
-#from strawberry import strawberry
+import StrawberryModel as strawberry
+
 def run():
     strw = strawberry.StawberryDataset()
     # strw.boxes_to_json()

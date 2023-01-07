@@ -26,7 +26,7 @@ def main():
     model = torch.load('model ripeness.pth')
     # put the model in evaluation mode
     model.eval()
-    print(model)
+    #print(model)
     fileDir = os.path.dirname(__file__)
     carol_test_path = os.path.join(fileDir, '../Data/Test Images')
     osd = OSD()
@@ -52,7 +52,7 @@ def main():
             prediction = model(img_tensor)[0]
         num_obj = len(prediction["boxes"])
         #print(train_labels[0]["image_id"])
-        proba_threshold = 0.60
+        proba_threshold = 0.5
         masks = prediction['masks'] > proba_threshold
         masks_colors=prediction["labels"]
         #masks = prediction['masks']> proba_threshold
@@ -67,7 +67,7 @@ def main():
         print(box_colors)
         #image2 = torch.as_tensor(img, dtype=torch.uint8)
         image2 = transform(img)
-
+        print(prediction["scores"])
         red = (255,0,0)
         green = (0,255,0)
         blue = (0,0,255)
