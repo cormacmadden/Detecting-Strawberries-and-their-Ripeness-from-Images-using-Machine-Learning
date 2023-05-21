@@ -1,5 +1,20 @@
 # Detecting Strawberries and their Ripeness from Images using Machine Learning (Mask R-CNN). 🍓
 
+
+## Training Validation and Test Data:
+The dataset used for this project is available for download at: <br/>
+https://drive.google.com/drive/folders/17MSYZFUf4wW66PDjhrJbN2y3JKXxlZHW?usp=sharing <br/>
+
+![Training Data.](/Figures/Training%20Data%20Strawberry%20Dataset.jpg?raw=true)
+
+RGB image using intensity as the instance ID and red channel, green channel and blue channel as class ID for ripe, unripe and partially ripe. <br/> 
+
+<br/>
+🟥 - Ripe <br/>
+🟩 - Not Ripe <br/>
+🟦 - Partially Ripe <br/>
+
+
 Fine-tuning a pre-trained model such as Mask R-CNN seemed like an effective approach to detecting strawberries and their ripeness as it can use the segmentation training images to find the strawberries and classification information such as ripeness can then also be added to the model.
 The process used to fine-tune the model was taken from the tutorials on [pytorch.org](https://pytorch.org/vision/main/auto_examples/plot_transforms_v2_e2e.html#sphx-glr-auto-examples-plot-transforms-v2-e2e-py).
 Tensorflow's torchvision wants you to write the implementation for the Dataset and Dataloader class to handle the storing loading and transformation of the training and testing data.
@@ -20,19 +35,9 @@ The model was evaluated on the test dataset for every epoch. The results from th
 
 Image 759 was the most impressive from the test data as it detected a tiny strawberry in the background not even 10x10 pixels, I hadn't noticed it was there until it was detected, so it has surpassed the ability of at least one human anyway. However, the mask result for this image does detect a false positive on the upper right hand side. I set the threshold for a positive detection at 0.5, and so with some more fine tuning on the test data perhaps a better threshold could be found. 
 
-![Results ](/Figures/Results Strawberry Detection.jpg)
+![Results ](/Figures/Results%20Strawberry%20Detection.jpg)
 ### Limitations, Conclusions and Future Work
 I think one of the limitations of the models is that they might not transfer as well as expected to new images with new lighting and taken in different environments. Future work could involve training and testing the models on new strawberry datasets to test their capabilities and strengthen its performance.
 In conclusion I think the two models are very effective in their objective of detecting and classifying strawberries and their ripeness.
 
 
-## Training Validation and Test Data:
-The dataset used for this project is available for download at: <br/>
-https://drive.google.com/drive/folders/17MSYZFUf4wW66PDjhrJbN2y3JKXxlZHW?usp=sharing <br/>
-RGB image using intensity as the instance ID and red channel, green channel and blue channel as class ID for ripe, unripe and partially ripe. <br/> 
-<br/>
-🟥 - Ripe <br/>
-🟩 - Not Ripe <br/>
-🟦 - Partially Ripe <br/>
-
-![Training Data.](/Figures/Training Data Strawberry Dataset.jpg)
