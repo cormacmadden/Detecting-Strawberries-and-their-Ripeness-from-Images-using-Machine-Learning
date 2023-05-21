@@ -4,7 +4,8 @@
 /vision/
 /60LOC/
 /Research Papers/
+/Data/
 *.pth
 *.torch
-/Data/
 *.ypc
+*.psd
