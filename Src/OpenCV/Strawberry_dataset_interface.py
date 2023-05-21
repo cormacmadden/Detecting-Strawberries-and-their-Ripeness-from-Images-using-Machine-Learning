@@ -6,7 +6,7 @@ import re
 from PIL import Image , ImageOps
 fileDir = os.path.dirname(__file__)
 
-class OldStawberryDataset():
+class OldStrawberryDataset():
     
     def import_images(self,imagesPath, amt = 0):
         imageFiles = [ f for f in os.listdir(imagesPath) if os.path.isfile(os.path.join(imagesPath,f)) ]

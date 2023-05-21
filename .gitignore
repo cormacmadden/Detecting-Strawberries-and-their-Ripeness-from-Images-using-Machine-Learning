@@ -3,6 +3,7 @@
 /Mask_RCNN/
 /vision/
 /60LOC/
+/Research Papers/
 *.pth
 *.torch
 /Data/

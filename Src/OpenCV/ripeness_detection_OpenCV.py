@@ -3,10 +3,10 @@ import os
 import numpy as np
 import keras
 import tensorflow as tf
-import StrawberryModel as strawberry
+import Strawberry_dataset_interface
 
 def run():
-    strw = strawberry.StawberryDataset()
+    strw = Strawberry_dataset_interface.OldStrawberryDataset()
     # strw.boxes_to_json()
     cv2.destroyAllWindows()
     fileDir = os.path.dirname(__file__)

@@ -1,37 +1,42 @@
-# Strawberry Counting and Ripeness detection
-### Deadline for Team report: Friday, January 6th, 2023
-### Deadline for Individual report: Monday, January 9th, 2023
-In the folder below you will find the data that you will use for Project 2. It consists of 3000 images of strawberries and their corresponding segmentation maps.
-## Data file details:
-Bounding Box - each row contains:
+# Detecting Strawberries and theirRipeness from Images using Machine Learning (Mask R-CNN).
+
+## Training Validation and Test Data Details:
+### Bounding Box - each row contains:
 [Ripeness Class ID (0 = unripe, 1 = partially ripe, 2 = fully ripe ]<br>
 [Normalized x value for bounding box centre coordinate (left to right)]<br>
 [Normalized y value for bounding box centre coordinate (top to bottom)]<br>
 [Normalized x value for bounding box width]<br>
 [Normalized y value for bounding box width]<br>
-## Instance Segmentation:
+### Instance Segmentation:
 Greyscale image using intensity as the instance ID
 Instance+Ripeness Segmentation:
 RGB image using intensity as the instance ID and red channel, green channel and blue channel as class ID for ripe, unripe and partially ripe.
 Image
 The original hi-res photograph.<br>
-We are holding back a further 100 images that are not in this dataset, that we will use to test your solutions.
-## Project specification:
-1. Perform a review of relevant papers that tackle similar problems - at least 9 related papers should be reviewed;
-2. Based on the review in 1, select at least 3 different approaches that you wish to implement;
-3. Your tasks are to count the number of strawberries in each image, and to identify the ripeness class (ripe, unripe, partially ripe) of each strawberry in that image;
-NOTE: You may take different approaches to the counting and the ripeness classification tasks
-4. Implement (training, validation and testing) these 3 approaches;
-NOTE: you may use opensource code, as long as everything is fully acknowledged and documented
-5. Write a team report, structured as an 8-10 page CVPR paper, as follows:
-Introduction;
-Background (review of at least 9 papers);
-Implementation (what methods did you choose and why, description of your implementations);
-Results (results of your validation and training, performance of your methods, in terms of both accuracy and speed);
-Limitations, Conclusions and Future Work.
-6. A  3-4 page individual report, outlining your own contribution to the project and the relative contributions of your team-mates.
 
-NOTE: For groups with only two members, the requirement is to review at least 6 related papers and to implement at least 2 approaches.<br>
-The templates for the CVPR format can be found at https://cvpr2022.thecvf.com/author-guidelines. (Scroll down to the section on "Submission Guidelines".}<br>
-50% of the marks available will be allocated for the group report and the performance test that we will do with the remaining 100 images.<br>
-The remaining 50% will be allocated based on the individual reports. By default, this will be the same as for the group report and results.<br> However, if some members make a larger or smaller contribution, this will be reflected in the individual marks.
+We are holding back a further 100 images that are not in this dataset, that we will use to test your solutions.
+
+
+Fine-tuning a pre-trained model such as Mask R-CNN seemed like an effective approach to detecting strawberries and their ripeness as it can use the segmentation training images to find the strawberries and classification information such as ripeness can then also be added to the model.
+The process used to fine-tune the model was taken from the tutorials on pytorch.org.
+Tensorflow's torchvision wants you to write the implementation for the Dataset and Dataloader class to handle the storing loading and transformation of the training and testing data.
+
+The first step of the process was to configure \__init__() function of the Dataset class so that it knows where all the images and information is stored. 
+The next step is to configure the \__getitem__() function so that the DataLoader Class can interpret it. 
+The \__getitem__() function loads in the files from the specified directories one by one. I decided to start with just the instance_segmentation files first and then use the instance+ripeness_segmentation files once that was up and working. From the mask image I calculated the bounding boxes for each strawberry by finding the min and max of every integer value on both axes. I count the number of unique values in the mask image and saves that that as the number of strawberries. 
+The function then converts the boxes, masks, image_id and box_area to tensors.
+It performs transforms on the image to convert it from a PIL image to a tensor and if it is training data it randomly flips half of the images. This process happens every time an image from the Dataset is requested by the DataLoader in the training process.
+
+The model is pre-trained on COCO, a popular object detection and segmentation dataset with over 80 object categories.
+It uses Fast R-CNN Predictor to predict the bounding boxes and Mask R-CNN to predict the mask.
+
+The model was trained on the full 3000 images for 6 epochs and took about 4 hours and 36 minutes to complete on a GTX970 GPU. It was saved to a .pth file which is the file-type used by PyTorch to store the model weights. This file is 172MB in size 
+
+### Results and Observations
+The model was evaluated on the test dataset for every epoch. The results from the final epoch are shown in Table X. The 5 test images provided on blackboard have also been tested and the results look good. The lack of segmentation or bounding box data for the test images unfortunately means the intersection over union (IoU) or the accuracy of the ripeness classification cannot be measured. However, from a qualitative perspective, the masks seems to impressively detect all the strawberries and draw accurate masks over them. The classification of ripe, unripe and partially ripe also appear as I would have expected.
+
+Image 759 was the most impressive from the test data as it detected a tiny strawberry in the background not even 10x10 pixels, I hadn't noticed it was there until it was detected, so it has surpassed the ability of at least one human anyway. However, the mask result for this image does detect a false positive on the upper right hand side. I set the threshold for a positive detection at 0.5, and so with some more fine tuning on the test data perhaps a better threshold could be found. 
+
+### Limitations, Conclusions and Future Work
+I think one of the limitations of the models is that they might not transfer as well as expected to new images with new lighting and taken in different environments. Future work could involve training and testing the models on new strawberry datasets to test their capabilities and strengthen its performance.
+In conclusion I think the two models are very effective in their objective of detecting and classifying strawberries and their ripeness.
